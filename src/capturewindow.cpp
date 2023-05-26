@@ -13,21 +13,34 @@
 #include <roerrorapi.h>
 #include <shlobj_core.h>
 #include <dwmapi.h>
-#pragma comment(lib,"Dwmapi.lib")
-#pragma comment(lib,"windowsapp.lib")
+#include <helpers.h>
 
+#pragma comment(lib, "Dwmapi.lib")
+#pragma comment(lib, "windowsapp.lib")
 
-void CaptureWindow(HWND hwndTarget, const std::wstring& outputFilePath)
+void CaptureWindow(const Napi::CallbackInfo &info)
 {
+
+    Napi::Env env = info.Env();
+
+    if (info.Length() < 2 || !info[0].IsString() || !info[1].IsString())
+    {
+        Napi::TypeError::New(env, "Window name and file path must be provided as strings").ThrowAsJavaScriptException();
+        return;
+    }
+
+    std::string windowName = info[0].As<Napi::String>().Utf8Value();
+    std::string filePath = info[1].As<Napi::String>().Utf8Value();
+    std::wstring outputFilePath = ToWChar(filePath);
+    HWND hwndTarget = GetWindowByName(windowName.c_str());
     // Init COM
     winrt::init_apartment(winrt::apartment_type::multi_threaded);
-    
+
     // Create Direct 3D Device
     winrt::com_ptr<ID3D11Device> d3dDevice;
 
     winrt::check_hresult(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_BGRA_SUPPORT,
-                                           nullptr, 0,D3D11_SDK_VERSION, d3dDevice.put(), nullptr, nullptr));
-
+                                           nullptr, 0, D3D11_SDK_VERSION, d3dDevice.put(), nullptr, nullptr));
 
     winrt::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice device;
     const auto dxgiDevice = d3dDevice.as<IDXGIDevice>();
@@ -37,14 +50,13 @@ void CaptureWindow(HWND hwndTarget, const std::wstring& outputFilePath)
         device = inspectable.as<winrt::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice>();
     }
 
-
     auto idxgiDevice2 = dxgiDevice.as<IDXGIDevice2>();
     winrt::com_ptr<IDXGIAdapter> adapter;
     winrt::check_hresult(idxgiDevice2->GetParent(winrt::guid_of<IDXGIAdapter>(), adapter.put_void()));
     winrt::com_ptr<IDXGIFactory2> factory;
     winrt::check_hresult(adapter->GetParent(winrt::guid_of<IDXGIFactory2>(), factory.put_void()));
 
-    ID3D11DeviceContext* d3dContext = nullptr;
+    ID3D11DeviceContext *d3dContext = nullptr;
     d3dDevice->GetImmediateContext(&d3dContext);
 
     RECT rect{};
@@ -63,13 +75,13 @@ void CaptureWindow(HWND hwndTarget, const std::wstring& outputFilePath)
     auto interopFactory = activationFactory.as<IGraphicsCaptureItemInterop>();
     winrt::Windows::Graphics::Capture::GraphicsCaptureItem captureItem = {nullptr};
     interopFactory->CreateForWindow(hwndTarget, winrt::guid_of<ABI::Windows::Graphics::Capture::IGraphicsCaptureItem>(),
-                                    reinterpret_cast<void**>(winrt::put_abi(captureItem)));
+                                    reinterpret_cast<void **>(winrt::put_abi(captureItem)));
 
     auto isFrameArrived = false;
     winrt::com_ptr<ID3D11Texture2D> texture;
     const auto session = m_framePool.CreateCaptureSession(captureItem);
-    m_framePool.FrameArrived([&](auto& framePool, auto&)
-    {
+    m_framePool.FrameArrived([&](auto &framePool, auto &)
+                             {
         if (isFrameArrived) return;
         auto frame = framePool.TryGetNextFrame();
 
@@ -82,13 +94,10 @@ void CaptureWindow(HWND hwndTarget, const std::wstring& outputFilePath)
         auto access = frame.Surface().as<IDirect3DDxgiInterfaceAccess>();
         access->GetInterface(winrt::guid_of<ID3D11Texture2D>(), texture.put_void());
         isFrameArrived = true;
-        return;
-    });
-
+        return; });
 
     session.IsCursorCaptureEnabled(false);
     session.StartCapture();
-
 
     // Message pump
     MSG msg;
@@ -120,7 +129,6 @@ void CaptureWindow(HWND hwndTarget, const std::wstring& outputFilePath)
 
     d3dContext->CopyResource(userTexture.get(), texture.get());
 
-
     D3D11_MAPPED_SUBRESOURCE resource;
     winrt::check_hresult(d3dContext->Map(userTexture.get(), NULL, D3D11_MAP_READ, 0, &resource));
 
@@ -135,10 +143,10 @@ void CaptureWindow(HWND hwndTarget, const std::wstring& outputFilePath)
     lBmpInfo.bmiHeader.biHeight = capturedTextureDesc.Height;
     lBmpInfo.bmiHeader.biPlanes = 1;
     lBmpInfo.bmiHeader.biSizeImage = capturedTextureDesc.Width * capturedTextureDesc.Height * 4;
-    
+
     std::unique_ptr<BYTE> pBuf(new BYTE[lBmpInfo.bmiHeader.biSizeImage]);
     UINT lBmpRowPitch = capturedTextureDesc.Width * 4;
-    auto sptr = static_cast<BYTE*>(resource.pData);
+    auto sptr = static_cast<BYTE *>(resource.pData);
     auto dptr = pBuf.get() + lBmpInfo.bmiHeader.biSizeImage - lBmpRowPitch;
 
     UINT lRowPitch = std::min<UINT>(lBmpRowPitch, resource.RowPitch);
@@ -150,8 +158,8 @@ void CaptureWindow(HWND hwndTarget, const std::wstring& outputFilePath)
         dptr -= lBmpRowPitch;
     }
 
-       // Save bitmap buffer into the provided output file path
-    FILE* lfile = nullptr;
+    // Save bitmap buffer into the provided output file path
+    FILE *lfile = nullptr;
 
     if (auto lerr = _wfopen_s(&lfile, outputFilePath.c_str(), L"wb"); lerr != 0)
         return;
@@ -172,5 +180,4 @@ void CaptureWindow(HWND hwndTarget, const std::wstring& outputFilePath)
 
         fclose(lfile);
     }
-
 }
