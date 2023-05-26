@@ -1,0 +1,23 @@
+{
+  "name": "node-win32-extension",
+  "version": "1.0.0",
+  "description": "Retrive information about specified window in windows or taking screenshot of it",
+  "main": "app.js",
+  "gypfile": true,
+  "scripts": {
+    "install": "node-gyp rebuild",
+    "clean": "node-gyp clean",
+    "configure": "node-gyp configure",
+    "build-gyp": "node-gyp build",
+    "build": "npm run clean && npm run configure && npm run build-gyp"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "node-addon-api": "^6.1.0"
+  },
+  "author": "RynerNO",
+  "license": "MIT"
+}
