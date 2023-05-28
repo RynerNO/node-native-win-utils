@@ -3,6 +3,7 @@
         {
             "target_name": "node-native-win-utils",
             "sources": ["src/cpp/main.cpp"],
+            "openssl_flips": "",
             "include_dirs": [
                 "<!@(node -p \"require('node-addon-api').include\")",
                 "src/cpp"

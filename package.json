@@ -1,23 +1,25 @@
 {
   "name": "node-native-win-utils",
   "version": "1.0.0",
+  "author": "RynerNO",
+  "license": "MIT",
   "description": "Provides functions for capturing window screenshots, retrieving window data, and handling key presses within Node.js applications. It offers features like captureWindow for taking screenshots or performing visual analysis, getWindowData for obtaining window information, and keyPressHandler for managing user input.",
-  "main": "app.js",
+  "main": "dist/index.js",
   "gypfile": true,
   "scripts": {
     "install": "node-gyp-build",
-    "build": "node-gyp clean && node-gyp configure && node-gyp build"
+    "build": "prebuildify --napi --napi && tsc"
   },
   "directories": {
     "test": "test"
   },
   "dependencies": {
     "node-addon-api": "^6.1.0",
-    "node-gyp-build": "^4.6.0"
-  },
-  "author": "RynerNO",
-  "license": "MIT",
-  "devDependencies": {
+    "node-gyp-build": "^4.6.0",
     "bindings": "^1.5.0"
+  },
+  "devDependencies": {
+    "@types/bindings": "^1.5.1",
+    "@types/node": "^20.2.5"
   }
 }
