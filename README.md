@@ -1,5 +1,4 @@
 [![License][license-src]][license-href]
-![Hits][hits-src]
 
 # Node Native Win Utils
 
@@ -173,4 +172,3 @@ P.S.: As my knowledge of C++ is just brief, most of the C++ code is written usin
 
 [license-src]: https://img.shields.io/github/license/nuxt-modules/icon.svg?style=for-the-badge&colorA=18181B&colorB=28CF8D
 [license-href]: https://github.com/RynerNO/node-native-win-utils/blob/main/LICENSE
-[hits-src]: https://img.shields.io/endpoint?colorB=%2328cf8d&colorA=%2318181b&style=for-the-badge&url=https%3A%2F%2Fhits.dwyl.com%2FRynerNO%2Fnode-native-win-utils.json
