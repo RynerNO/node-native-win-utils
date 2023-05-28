@@ -10,16 +10,11 @@
     "install": "node-gyp-build",
     "build": "prebuildify --napi --napi && tsc"
   },
-  "directories": {
-    "test": "test"
-  },
   "dependencies": {
     "node-addon-api": "^6.1.0",
-    "node-gyp-build": "^4.6.0",
-    "bindings": "^1.5.0"
+    "node-gyp-build": "^4.6.0"
   },
   "devDependencies": {
-    "@types/bindings": "^1.5.1",
     "@types/node": "^20.2.5"
   }
 }
