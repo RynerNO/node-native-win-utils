@@ -1,0 +1,10 @@
+src
+node_modules
+.vscode
+tsconfig.json
+test
+
+!dist
+!build
+!package-lock.json
+!prebuilds

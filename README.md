@@ -94,21 +94,14 @@ listener.on("keyUp", (data) => {
 
 ## Functions
 
-| Function | Parameters | Return Type |
-
+| Function       | Parameters                                                                              | Return Type            |
 | -------------- | --------------------------------------------------------------------------------------- | ---------------------- |
-
-| keyDownHandler | `callback: (keyCode: number) => void` | `void` |
-
-| keyUpHandler | `callback: (keyCode: number) => void` | `void` |
-
-| getWindowData | `windowName: string` | `WindowData` |
-
-| captureWindow | `windowName: string, outputPath: string` | `void` |
-
+| keyDownHandler | `callback: (keyCode: number) => void`                                                   | `void`                 |
+| keyUpHandler   | `callback: (keyCode: number) => void`                                                   | `void`                 |
+| getWindowData  | `windowName: string`                                                                    | `WindowData`           |
+| captureWindow  | `windowName: string, outputPath: string`                                                | `void`                 |
 | KeyListener.on | `event: "keyDown"`,<br>`callback: (data: { keyCode: number; keyName: string }) => void` | `this` (EventListener) |
-
-| KeyListener.on | `event: "keyUp"`,<br>`callback: (data: { keyCode: number; keyName: string }) => void` | `this` (EventListener) |
+| KeyListener.on | `event: "keyUp"`,<br>`callback: (data: { keyCode: number; keyName: string }) => void`   | `this` (EventListener) |
 
 ## Examples
 
