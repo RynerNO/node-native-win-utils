@@ -3,7 +3,19 @@
   "version": "1.0.0",
   "author": "RynerNO",
   "license": "MIT",
-  "description": "Provides functions for capturing window screenshots, retrieving window data, and handling key presses within Node.js applications. It offers features like captureWindow for taking screenshots or performing visual analysis, getWindowData for obtaining window information, and keyPressHandler for managing user input.",
+  "description": "Native addon for Node.js providing utility operations on Windows systems",
+  "keywords": [
+    "node.js",
+    "native",
+    "addon",
+    "Windows",
+    "utility",
+    "key event",
+    "window",
+    "screenshot",
+    "capture",
+    "listener"
+  ],
   "main": "dist/index.js",
   "gypfile": true,
   "scripts": {
