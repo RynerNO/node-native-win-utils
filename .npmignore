@@ -3,8 +3,11 @@ node_modules
 .vscode
 tsconfig.json
 test
+build
+src/*.ts
 
+!src/cpp/*.cpp
+!src/cpp
 !dist
-!build
 !package-lock.json
 !prebuilds

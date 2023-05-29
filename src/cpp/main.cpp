@@ -3,6 +3,7 @@
 #include "captureWindow.cpp"
 #include <getWindowData.cpp>
 #include <keyBoardHandler.cpp>
+#include <mouse.cpp>
 
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
@@ -10,6 +11,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
     exports.Set("captureWindow", Napi::Function::New(env, CaptureWindow));
     exports.Set("keyDownHandler", Napi::Function::New(env, SetKeyDownCallback));
     exports.Set("keyUpHandler", Napi::Function::New(env, SetKeyUpCallback));
+    exports.Set("mouseMove", Napi::Function::New(env, MoveMouse));
+    exports.Set("mouseClick", Napi::Function::New(env, ClickMouse));
     return exports;
 }
 
