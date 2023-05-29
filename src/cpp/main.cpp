@@ -13,6 +13,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
     exports.Set("keyUpHandler", Napi::Function::New(env, SetKeyUpCallback));
     exports.Set("mouseMove", Napi::Function::New(env, MoveMouse));
     exports.Set("mouseClick", Napi::Function::New(env, ClickMouse));
+    exports.Set("mouseDrag", Napi::Function::New(env, DragMouse));
     exports.Set("typeString", Napi::Function::New(env, TypeString));
     return exports;
 }

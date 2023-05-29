@@ -19,7 +19,13 @@ export type KeyUpHandler = (callback: (keyCode: number) => void) => void;
 export type MouseMove = (posX: number, posY: number) => boolean;
 export type MouseClick = (button?: "left" | "middle" | "right") => boolean;
 export type TypeString = (stringToType: string, delay?: number) => boolean;
-
+export type MouseDrag = (
+  starX: number,
+  startY: number,
+  endX: Number,
+  endY: number,
+  speed?: number
+) => boolean;
 export interface KeyListener extends EventEmitter {
   on(
     event: "keyDown",
@@ -38,6 +44,7 @@ const {
   captureWindow,
   mouseMove,
   mouseClick,
+  mouseDrag,
   typeString,
 }: {
   keyDownHandler: KeyDownHandler;
@@ -46,6 +53,7 @@ const {
   captureWindow: CaptureWindow;
   mouseMove: MouseMove;
   mouseClick: MouseClick;
+  mouseDrag: MouseDrag;
   typeString: TypeString;
 } = bindings;
 export class KeyListener extends EventEmitter {
@@ -75,5 +83,6 @@ export {
   captureWindow,
   mouseMove,
   mouseClick,
+  mouseDrag,
   typeString,
 };
