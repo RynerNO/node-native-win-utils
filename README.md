@@ -2,25 +2,23 @@
 
 # Node Native Win Utils
 
-I did it for myself because I didn't feel like dealing with libraries like 'node-ffi' to implement this functionality. Maybe someone will find it useful. I'ts WINDOWS OS ONLY
+I did it for myself because I didn't feel like dealing with libraries like 'node-ffi' to implement this functionality. Maybe someone will find it useful. It's WINDOWS OS ONLY
 
-This package provides a native addon for Node.js that allows you to perform various utility operations on Windows systems. It includes key event listeners, window data retrieval, and window screenshot capture functionality.
+This package is a native addon for Node.js that allows you to perform various utility operations on Windows systems. It includes key event listeners, window data retrieval, window screenshot capture functionality, mouse movement, mouse click, mouse drag, and typing functionality.
 
 ## Installation
 
 You can install the package using npm:
 
 ```shell
-
-npm  install  node-native-win-utils
-
+npm install node-native-win-utils
 ```
 
 ## Usage
 
 ### Importing the Package
 
-To use the package, import the necessary functions and types:
+To use the package, import the necessary functions, types, and classes:
 
 ```javascript
 import {
@@ -28,6 +26,10 @@ import {
   keyUpHandler,
   getWindowData,
   captureWindow,
+  mouseMove,
+  mouseClick,
+  mouseDrag,
+  typeString,
   KeyListener,
 } from "node-native-win-utils";
 ```
@@ -72,6 +74,43 @@ captureWindow("Window Name", "output.png");
 // Output: output.png with a screenshot of the window
 ```
 
+### Mouse Movement
+
+The `mouseMove` function allows you to move the mouse to a specific position on the screen. Provide the `posX` and `posY` coordinates as parameters:
+
+```javascript
+mouseMove(100, 200);
+```
+
+### Mouse Click
+
+The `mouseClick` function allows you to perform a mouse click event. Optionally, you can specify the mouse button as a parameter (`"left"`, `"middle"`, or `"right"`). If no button is specified, a left mouse click is performed by default:
+
+```javascript
+mouseClick(); // Left mouse click
+mouseClick("right"); // Right mouse click
+```
+
+### Mouse Drag
+
+The `mouseDrag` function allows you to simulate dragging the mouse from one position to another. Provide the starting and ending coordinates (`startX`, `startY`, `endX`, `endY`) as parameters. Optionally, you can specify the speed at which the mouse should be dragged:
+
+```javascript
+mouseDrag(100, 200, 300, 400);
+mouseDrag(100, 200, 300, 400, 100); // Drag with speed 100
+```
+
+### Typing
+
+The `typeString` function allows you to simulate typing a string of characters. Provide the string to type as the `stringToType` parameter. Optionally, you can specify
+
+a delay between each character (in milliseconds) using the `delay` parameter:
+
+```javascript
+typeString("Hello, world!");
+typeString("Hello, world!", 100); // Type with a delay of 100ms between characters
+```
+
 ### Key Listener Class
 
 The `KeyListener` class extends the EventEmitter class and simplifies working with the `keyDownHandler` and `keyUpHandler` functions. You can register event listeners for the "keyDown" and "keyUp" events using the `on` method:
@@ -95,11 +134,15 @@ listener.on("keyUp", (data) => {
 ## Functions
 
 | Function       | Parameters                                                                              | Return Type            |
-| -------------- | --------------------------------------------------------------------------------------- | ---------------------- |
+| -------------- | --------------------------------------------------------------------------------------- | ---------------------- | -------- | --------- |
 | keyDownHandler | `callback: (keyCode: number) => void`                                                   | `void`                 |
 | keyUpHandler   | `callback: (keyCode: number) => void`                                                   | `void`                 |
 | getWindowData  | `windowName: string`                                                                    | `WindowData`           |
 | captureWindow  | `windowName: string, outputPath: string`                                                | `void`                 |
+| mouseMove      | `posX: number, posY: number`                                                            | `boolean`              |
+| mouseClick     | `button?: "left"                                                                        | "middle"               | "right"` | `boolean` |
+| mouseDrag      | `startX: number, startY: number, endX: number, endY: number, speed?: number`            | `boolean`              |
+| typeString     | `stringToType: string, delay?: number`                                                  | `boolean`              |
 | KeyListener.on | `event: "keyDown"`,<br>`callback: (data: { keyCode: number; keyName: string }) => void` | `this` (EventListener) |
 | KeyListener.on | `event: "keyUp"`,<br>`callback: (data: { keyCode: number; keyName: string }) => void`   | `this` (EventListener) |
 
@@ -113,6 +156,10 @@ import {
   keyUpHandler,
   getWindowData,
   captureWindow,
+  mouseMove,
+  mouseClick,
+  mouseDrag,
+  typeString,
   KeyListener,
 } from "node-native-win-utils";
 
@@ -143,6 +190,25 @@ console.log("Window data:", windowData);
 captureWindow("My Window", "output.png");
 
 // Output: output.png with a screenshot of the window
+
+// Move the mouse
+
+mouseMove(100, 200);
+
+// Perform mouse click
+
+mouseClick(); // Left mouse click
+mouseClick("right"); // Right mouse click
+
+// Simulate mouse drag
+
+mouseDrag(100, 200, 300, 400);
+mouseDrag(100, 200, 300, 400, 100); // Drag with speed 100
+
+// Simulate typing
+
+typeString("Hello, world!");
+typeString("Hello, world!", 100); // Type with a delay of 100ms between characters
 
 // Use KeyListener class
 
