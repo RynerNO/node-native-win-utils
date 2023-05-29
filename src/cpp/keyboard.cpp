@@ -163,3 +163,43 @@ Napi::Value SetKeyUpCallback(const Napi::CallbackInfo &info)
   }
   return env.Undefined();
 }
+
+Napi::Value TypeString(const Napi::CallbackInfo &info)
+{
+  Napi::Env env = info.Env();
+
+  if (info.Length() < 1 || !info[0].IsString())
+  {
+    Napi::TypeError::New(env, "You should provide a string to type").ThrowAsJavaScriptException();
+    return env.Null();
+  }
+  int delay = 15;
+  std::string text = info[0].As<Napi::String>();
+  if (info.Length() > 1 && info[1].IsNumber())
+  {
+    delay = info[1].As<Napi::Number>();
+  }
+  // Convert the string to wide string
+  std::wstring wideText(text.begin(), text.end());
+
+  // Simulate typing by sending keyboard events
+  for (const wchar_t &character : wideText)
+  {
+    INPUT keyboardInput = {0};
+    keyboardInput.type = INPUT_KEYBOARD;
+    keyboardInput.ki.wVk = 0;
+    keyboardInput.ki.wScan = character;
+    keyboardInput.ki.dwFlags = KEYEVENTF_UNICODE;
+    keyboardInput.ki.time = 0; // System will provide the timestamp
+
+    SendInput(1, &keyboardInput, sizeof(keyboardInput));
+
+    keyboardInput.ki.dwFlags = KEYEVENTF_UNICODE | KEYEVENTF_KEYUP;
+    SendInput(1, &keyboardInput, sizeof(keyboardInput));
+
+    // Sleep for 15 milliseconds between each character input
+    Sleep(delay);
+  }
+
+  return Napi::Boolean::New(env, true);
+}
