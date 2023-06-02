@@ -24,12 +24,19 @@ type MatchData = {
 };
 
 export type GetWindowData = (windowName: string) => WindowData;
+
 export type CaptureWindow = (windowName: string, outputPath: string) => void;
+
 export type KeyDownHandler = (callback: (keyCode: number) => void) => void;
+
 export type KeyUpHandler = (callback: (keyCode: number) => void) => void;
+
 export type MouseMove = (posX: number, posY: number) => boolean;
+
 export type MouseClick = (button?: "left" | "middle" | "right") => boolean;
+
 export type TypeString = (stringToType: string, delay?: number) => boolean;
+
 export type MouseDrag = (
   starX: number,
   startY: number,
@@ -37,14 +44,25 @@ export type MouseDrag = (
   endY: number,
   speed?: number
 ) => boolean;
+
 export type Imread = (path: string) => ImageData;
+
 export type Imwrite = (path: string, image: ImageData) => ImageData;
+
 export type MatchTemplate = (
   image: ImageData,
   template: ImageData,
   method?: number | null,
   mask?: ImageData
 ) => ImageData;
+
+export type Blur = (
+  image: ImageData,
+  sizeX: number,
+  sizeY: number
+) => ImageData;
+export type BgrToGray = (image: ImageData) => ImageData;
+
 export interface KeyListener extends EventEmitter {
   on(
     event: "keyDown",
@@ -68,6 +86,8 @@ const {
   imread,
   imwrite,
   matchTemplate,
+  blur,
+  bgrToGray,
 }: {
   keyDownHandler: KeyDownHandler;
   keyUpHandler: KeyUpHandler;
@@ -80,6 +100,8 @@ const {
   imread: Imread;
   imwrite: Imwrite;
   matchTemplate: MatchTemplate;
+  blur: Blur;
+  bgrToGray: BgrToGray;
 } = bindings;
 export class KeyListener extends EventEmitter {
   constructor() {
@@ -100,7 +122,13 @@ export class KeyListener extends EventEmitter {
     });
   }
 }
-
+const opencv = {
+  imread,
+  imwrite,
+  matchTemplate,
+  blur,
+  bgrToGray,
+};
 export {
   keyDownHandler,
   keyUpHandler,
@@ -110,7 +138,5 @@ export {
   mouseClick,
   mouseDrag,
   typeString,
-  imread,
-  imwrite,
-  matchTemplate,
+  opencv,
 };

@@ -19,6 +19,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
     exports.Set("imread", Napi::Function::New(env, Imread));
     exports.Set("imwrite", Napi::Function::New(env, Imwrite));
     exports.Set("matchTemplate", Napi::Function::New(env, MatchTemplate));
+    exports.Set("blur", Napi::Function::New(env, Blur));
+    exports.Set("bgrToGray", Napi::Function::New(env, BgrToGray));
     return exports;
 }
 
