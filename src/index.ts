@@ -11,6 +11,17 @@ type WindowData = {
   x: number;
   y: number;
 };
+type ImageData = {
+  width: number;
+  height: number;
+  data: Uint8Array;
+};
+type MatchData = {
+  minValue: number;
+  maxValue: number;
+  minLocation: { x: number; y: number };
+  maxLocation: { x: number; y: number };
+};
 
 export type GetWindowData = (windowName: string) => WindowData;
 export type CaptureWindow = (windowName: string, outputPath: string) => void;
@@ -26,6 +37,14 @@ export type MouseDrag = (
   endY: number,
   speed?: number
 ) => boolean;
+export type Imread = (path: string) => ImageData;
+export type Imwrite = (path: string, image: ImageData) => ImageData;
+export type MatchTemplate = (
+  image: ImageData,
+  template: ImageData,
+  method?: number | null,
+  mask?: ImageData
+) => ImageData;
 export interface KeyListener extends EventEmitter {
   on(
     event: "keyDown",
@@ -46,6 +65,9 @@ const {
   mouseClick,
   mouseDrag,
   typeString,
+  imread,
+  imwrite,
+  matchTemplate,
 }: {
   keyDownHandler: KeyDownHandler;
   keyUpHandler: KeyUpHandler;
@@ -55,6 +77,9 @@ const {
   mouseClick: MouseClick;
   mouseDrag: MouseDrag;
   typeString: TypeString;
+  imread: Imread;
+  imwrite: Imwrite;
+  matchTemplate: MatchTemplate;
 } = bindings;
 export class KeyListener extends EventEmitter {
   constructor() {
@@ -85,4 +110,7 @@ export {
   mouseClick,
   mouseDrag,
   typeString,
+  imread,
+  imwrite,
+  matchTemplate,
 };

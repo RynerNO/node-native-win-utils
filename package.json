@@ -1,8 +1,9 @@
 {
   "name": "node-native-win-utils",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "RynerNO",
   "license": "MIT",
+  "repository": "https://github.com/RynerNO/node-native-win-utils.git",
   "description": "Native addon for Node.js providing utility operations on Windows systems",
   "keywords": [
     "node.js",
@@ -14,7 +15,12 @@
     "window",
     "screenshot",
     "capture",
-    "listener"
+    "listener",
+    "mouse",
+    "movemouse",
+    "click",
+    "keyboard",
+    "mousedrag"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,6 +31,7 @@
   },
   "dependencies": {
     "node-addon-api": "^6.1.0",
+    "node-gyp": "^9.3.1",
     "node-gyp-build": "^4.6.0"
   },
   "devDependencies": {

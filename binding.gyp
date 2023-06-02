@@ -6,13 +6,25 @@
             "openssl_flips": "",
             "include_dirs": [
                 "<!@(node -p \"require('node-addon-api').include\")",
-                "src/cpp"
+                "src/cpp",
+                "libs",
+                "include",
+                "dll"
             ],
             "dependencies": [
                 "<!(node -p \"require('node-addon-api').gyp\")"
             ],
-            "libraries": ["dwmapi.lib", "windowsapp.lib"],
-            "defines": ["NAPI_DISABLE_CPP_EXCEPTIONS"],
+            "libraries": [
+                "dwmapi.lib",
+                "windowsapp.lib",
+                "<!(node -p \"require('path').resolve('libs/libjpeg-turbo.lib')\")",
+                "<!(node -p \"require('path').resolve('libs/libpng.lib')\")",
+                "<!(node -p \"require('path').resolve('libs/zlib.lib')\")",
+                "<!(node -p \"require('path').resolve('libs/opencv_core470.lib')\")",
+                "<!(node -p \"require('path').resolve('libs/opencv_imgcodecs470.lib')\")",
+                "<!(node -p \"require('path').resolve('libs/opencv_imgproc470.lib')\")",
+
+            ],
             "conditions": [
                 ["OS=='win'", {
                     "defines": [
@@ -25,8 +37,6 @@
                     }
                 }]
             ],
-            "cflags!": ["-fno-exceptions"],
-            "cflags_cc!": ["-fno-exceptions"],
             "defines": ["NAPI_CPP_EXCEPTIONS"]
         }
     ]

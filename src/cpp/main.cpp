@@ -1,9 +1,10 @@
 #include <napi.h>
 #include <helpers.cpp>
-#include "captureWindow.cpp"
+#include <captureWindow.cpp>
 #include <getWindowData.cpp>
 #include <keyboard.cpp>
 #include <mouse.cpp>
+#include <opencv.cpp>
 
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
@@ -15,6 +16,9 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
     exports.Set("mouseClick", Napi::Function::New(env, ClickMouse));
     exports.Set("mouseDrag", Napi::Function::New(env, DragMouse));
     exports.Set("typeString", Napi::Function::New(env, TypeString));
+    exports.Set("imread", Napi::Function::New(env, Imread));
+    exports.Set("imwrite", Napi::Function::New(env, Imwrite));
+    exports.Set("matchTemplate", Napi::Function::New(env, MatchTemplate));
     return exports;
 }
 
