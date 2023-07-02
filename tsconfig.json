@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "commonjs",
-    "removeComments": true,
+    "removeComments": false,
     "declaration": true,
     "baseUrl": "./",
     "paths": {
