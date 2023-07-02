@@ -13,34 +13,46 @@
 #include <roerrorapi.h>
 #include <shlobj_core.h>
 #include <dwmapi.h>
-#include <helpers.h>
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
 
 #pragma comment(lib, "Dwmapi.lib")
 #pragma comment(lib, "windowsapp.lib")
 
-void CaptureWindow(const Napi::CallbackInfo &info)
+Napi::Value CaptureWindow(const Napi::CallbackInfo &info)
 {
-
     Napi::Env env = info.Env();
 
-    if (info.Length() < 2 || !info[0].IsString() || !info[1].IsString())
+    if (info.Length() < 1 || !info[0].IsString())
     {
-        Napi::TypeError::New(env, "Window name and file path must be provided as strings").ThrowAsJavaScriptException();
-        return;
+        Napi::TypeError::New(env, "Window name must be provided as a string").ThrowAsJavaScriptException();
+        return env.Null();
     }
 
     std::string windowName = info[0].As<Napi::String>().Utf8Value();
-    std::string filePath = info[1].As<Napi::String>().Utf8Value();
-    std::wstring outputFilePath = ToWChar(filePath);
-    HWND hwndTarget = GetWindowByName(windowName.c_str());
+    HWND hwndTarget = FindWindowA(NULL, windowName.c_str());
+    if (!hwndTarget)
+    {
+        Napi::TypeError::New(env, "Window not found").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
     // Init COM
     winrt::init_apartment(winrt::apartment_type::multi_threaded);
 
     // Create Direct 3D Device
     winrt::com_ptr<ID3D11Device> d3dDevice;
-
-    winrt::check_hresult(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_BGRA_SUPPORT,
-                                           nullptr, 0, D3D11_SDK_VERSION, d3dDevice.put(), nullptr, nullptr));
+    winrt::check_hresult(D3D11CreateDevice(
+        nullptr,
+        D3D_DRIVER_TYPE_HARDWARE,
+        nullptr,
+        D3D11_CREATE_DEVICE_BGRA_SUPPORT,
+        nullptr,
+        0,
+        D3D11_SDK_VERSION,
+        d3dDevice.put(),
+        nullptr,
+        nullptr));
 
     winrt::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice device;
     const auto dxgiDevice = d3dDevice.as<IDXGIDevice>();
@@ -93,8 +105,7 @@ void CaptureWindow(const Napi::CallbackInfo &info)
 
         auto access = frame.Surface().as<IDirect3DDxgiInterfaceAccess>();
         access->GetInterface(winrt::guid_of<ID3D11Texture2D>(), texture.put_void());
-        isFrameArrived = true;
-        return; });
+        isFrameArrived = true; });
 
     session.IsCursorCaptureEnabled(false);
     session.StartCapture();
@@ -110,7 +121,7 @@ void CaptureWindow(const Napi::CallbackInfo &info)
         if (clock() - timer > 20000)
         {
             // TODO: try to make here a better error handling
-            return;
+            return env.Null();
         }
     }
 
@@ -144,40 +155,19 @@ void CaptureWindow(const Napi::CallbackInfo &info)
     lBmpInfo.bmiHeader.biPlanes = 1;
     lBmpInfo.bmiHeader.biSizeImage = capturedTextureDesc.Width * capturedTextureDesc.Height * 4;
 
-    std::unique_ptr<BYTE> pBuf(new BYTE[lBmpInfo.bmiHeader.biSizeImage]);
-    UINT lBmpRowPitch = capturedTextureDesc.Width * 4;
-    auto sptr = static_cast<BYTE *>(resource.pData);
-    auto dptr = pBuf.get() + lBmpInfo.bmiHeader.biSizeImage - lBmpRowPitch;
+    auto imageBuffer = cv::Mat(capturedTextureDesc.Height, capturedTextureDesc.Width, CV_8UC4, resource.pData, resource.RowPitch);
+    std::vector<uchar> encodedImage;
+    cv::imencode(".png", imageBuffer, encodedImage);
 
-    UINT lRowPitch = std::min<UINT>(lBmpRowPitch, resource.RowPitch);
-
-    for (size_t h = 0; h < capturedTextureDesc.Height; ++h)
+    if (encodedImage.empty())
     {
-        memcpy_s(dptr, lBmpRowPitch, sptr, lRowPitch);
-        sptr += resource.RowPitch;
-        dptr -= lBmpRowPitch;
+        return env.Null(); // Error handling for encoding failure
     }
 
-    // Save bitmap buffer into the provided output file path
-    FILE *lfile = nullptr;
+    auto data = encodedImage.data();
 
-    if (auto lerr = _wfopen_s(&lfile, outputFilePath.c_str(), L"wb"); lerr != 0)
-        return;
+    d3dContext->Unmap(userTexture.get(), 0);
+    Napi::Buffer<uchar> resultBuffer = Napi::Buffer<uchar>::Copy(env, data, encodedImage.size());
 
-    if (lfile != nullptr)
-    {
-        BITMAPFILEHEADER bmpFileHeader;
-
-        bmpFileHeader.bfReserved1 = 0;
-        bmpFileHeader.bfReserved2 = 0;
-        bmpFileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + lBmpInfo.bmiHeader.biSizeImage;
-        bmpFileHeader.bfType = 'MB';
-        bmpFileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
-
-        fwrite(&bmpFileHeader, sizeof(BITMAPFILEHEADER), 1, lfile);
-        fwrite(&lBmpInfo.bmiHeader, sizeof(BITMAPINFOHEADER), 1, lfile);
-        fwrite(pBuf.get(), lBmpInfo.bmiHeader.biSizeImage, 1, lfile);
-
-        fclose(lfile);
-    }
+    return resultBuffer;
 }

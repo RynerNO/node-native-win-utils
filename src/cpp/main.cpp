@@ -9,7 +9,7 @@
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
     exports.Set("getWindowData", Napi::Function::New(env, GetWindowData));
-    exports.Set("captureWindow", Napi::Function::New(env, CaptureWindow));
+    exports.Set("captureWindowN", Napi::Function::New(env, CaptureWindow));
     exports.Set("keyDownHandler", Napi::Function::New(env, SetKeyDownCallback));
     exports.Set("keyUpHandler", Napi::Function::New(env, SetKeyUpCallback));
     exports.Set("mouseMove", Napi::Function::New(env, MoveMouse));
@@ -21,6 +21,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
     exports.Set("matchTemplate", Napi::Function::New(env, MatchTemplate));
     exports.Set("blur", Napi::Function::New(env, Blur));
     exports.Set("bgrToGray", Napi::Function::New(env, BgrToGray));
+    exports.Set("drawRectangle", Napi::Function::New(env, DrawRectangle));
+    exports.Set("getRegion", Napi::Function::New(env, GetRegion));
     return exports;
 }
 

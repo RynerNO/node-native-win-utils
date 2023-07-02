@@ -54,14 +54,13 @@ Napi::Value Imwrite(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
 
-    if (info.Length() < 2 || !info[0].IsString() || !info[1].IsObject())
+    if (info.Length() < 1 || !info[0].IsObject())
     {
-        Napi::TypeError::New(env, "Invalid arguments. Expected: (string, object)").ThrowAsJavaScriptException();
+        Napi::TypeError::New(env, "Invalid arguments. Expected: object").ThrowAsJavaScriptException();
         return env.Null();
     }
 
-    std::string filename = info[0].ToString().Utf8Value();
-    Napi::Object imageData = info[1].As<Napi::Object>();
+    Napi::Object imageData = info[0].As<Napi::Object>();
 
     if (!imageData.Has("width") || !imageData.Has("height") || !imageData.Has("data"))
     {
@@ -89,10 +88,11 @@ Napi::Value Imwrite(const Napi::CallbackInfo &info)
         Napi::TypeError::New(env, "'data' property must be a TypedArray").ThrowAsJavaScriptException();
         return env.Null();
     }
+    std::vector<uchar> buffer;
+    cv::imencode(".png", image, buffer);
 
-    bool result = cv::imwrite(filename, image);
-
-    return Napi::Boolean::New(env, result);
+    Napi::Buffer<uchar> resultBuffer = Napi::Buffer<uchar>::Copy(env, buffer.data(), buffer.size());
+    return resultBuffer;
 }
 
 Napi::Value MatchTemplate(const Napi::CallbackInfo &info)
@@ -278,6 +278,131 @@ Napi::Value Blur(const Napi::CallbackInfo &info)
     result.Set("width", width);
     result.Set("height", height);
     result.Set("data", uint8Array);
+    return result;
+}
+
+Napi::Value DrawRectangle(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+
+    if (info.Length() < 5 || !info[0].IsObject() || !info[1].IsArray() || !info[2].IsArray() || !info[3].IsArray() || !info[4].IsNumber())
+    {
+        Napi::TypeError::New(env, "Invalid arguments. Expected: (object, array, array, array, number)").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    Napi::Object imageObj = info[0].As<Napi::Object>();
+    Napi::Array point1Array = info[1].As<Napi::Array>();
+    Napi::Array point2Array = info[2].As<Napi::Array>();
+    int thickness = info[4].As<Napi::Number>().Int32Value();
+    if (point1Array.Length() < 2 || point2Array.Length() < 2)
+    {
+        Napi::TypeError::New(env, "Invalid point array length. Expected: [x, y]").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    int x1 = point1Array.Get((uint32_t)0).ToNumber().Int32Value();
+    int y1 = point1Array.Get((uint32_t)1).ToNumber().Int32Value();
+    int x2 = point2Array.Get((uint32_t)0).ToNumber().Int32Value();
+    int y2 = point2Array.Get((uint32_t)1).ToNumber().Int32Value();
+
+    Napi::Array colorArray = info[3].As<Napi::Array>();
+
+    if (colorArray.Length() < 3)
+    {
+        Napi::TypeError::New(env, "Invalid color array length. Expected: [r, g, b]").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    int r = colorArray.Get((uint32_t)0).ToNumber().Int32Value();
+    int g = colorArray.Get((uint32_t)1).ToNumber().Int32Value();
+    int b = colorArray.Get((uint32_t)2).ToNumber().Int32Value();
+
+    if (!imageObj.Has("data") || !imageObj.Has("width") || !imageObj.Has("height"))
+    {
+        Napi::TypeError::New(env, "Invalid image data object. Expected properties: 'data', 'width', 'height'").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    if (!imageObj.Get("data").IsTypedArray())
+    {
+        Napi::TypeError::New(env, "TypedArray expected for 'data' property").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    int width = imageObj.Get("width").ToNumber().Int32Value();
+    int height = imageObj.Get("height").ToNumber().Int32Value();
+
+    cv::Mat image(height, width, CV_8UC3, imageObj.Get("data").As<Napi::TypedArray>().ArrayBuffer().Data());
+
+    cv::rectangle(image, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(b, g, r), thickness);
+    Napi::Object result = Napi::Object::New(env);
+
+    size_t totalBytes = image.total() * image.elemSize();
+    Napi::ArrayBuffer arrayBuffer = Napi::ArrayBuffer::New(env, totalBytes);
+    Napi::Uint8Array uint8Array = Napi::Uint8Array::New(env, totalBytes, arrayBuffer, 0);
+
+    // Copy the image data to the Uint8Array
+    memcpy(uint8Array.Data(), image.data, totalBytes);
+    result.Set("width", width);
+    result.Set("height", height);
+    result.Set("data", uint8Array);
+    return result;
+}
+
+Napi::Value GetRegion(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+
+    if (info.Length() < 2 || !info[0].IsObject() && !info[1].IsObject())
+    {
+        Napi::TypeError::New(env, "Invalid arguments. Expected: (object)").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+    Napi::Object imageObj = info[0].As<Napi::Object>();
+    Napi::Object options = info[1].As<Napi::Object>();
+
+    int x = options.Get((uint32_t)0).ToNumber().Int32Value();
+    int y = options.Get((uint32_t)1).ToNumber().Int32Value();
+    int width = options.Get((uint32_t)2).ToNumber().Int32Value();
+    int height = options.Get((uint32_t)3).ToNumber().Int32Value();
+
+    if (!imageObj.Has("data") || !imageObj.Has("width") || !imageObj.Has("height"))
+    {
+        Napi::TypeError::New(env, "Invalid image data object. Expected properties: 'data', 'width', 'height'").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    if (!imageObj.Get("data").IsTypedArray())
+    {
+        Napi::TypeError::New(env, "TypedArray expected for 'data' property").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    int imageWidth = imageObj.Get("width").ToNumber().Int32Value();
+    int imageHeight = imageObj.Get("height").ToNumber().Int32Value();
+
+    if (x < 0 || y < 0 || width <= 0 || height <= 0 || x + width > imageWidth || y + height > imageHeight)
+    {
+        Napi::TypeError::New(env, "Invalid region coordinates or size").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    cv::Mat image(imageHeight, imageWidth, CV_8UC3, imageObj.Get("data").As<Napi::TypedArray>().ArrayBuffer().Data());
+
+    cv::Rect region(x, y, width, height);
+    cv::Mat regionImage = image(region);
+    size_t totalBytes = regionImage.total() * regionImage.elemSize();
+    Napi::ArrayBuffer arrayBuffer = Napi::ArrayBuffer::New(env, totalBytes);
+    Napi::Uint8Array uint8Array = Napi::Uint8Array::New(env, totalBytes, arrayBuffer, 0);
+
+    // Copy the image data to the Uint8Array
+    memcpy(uint8Array.Data(), regionImage.data, totalBytes);
+    Napi::Object result = Napi::Object::New(env);
+    result.Set("data", uint8Array);
+    result.Set("width", Napi::Number::New(env, regionImage.cols));
+    result.Set("height", Napi::Number::New(env, regionImage.rows));
+
     return result;
 }
 

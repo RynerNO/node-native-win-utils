@@ -37,7 +37,10 @@
                     }
                 }]
             ],
-            "defines": ["NAPI_CPP_EXCEPTIONS"]
+            "defines": ["NAPI_CPP_EXCEPTIONS"],
+            "cflags!": ["-fno-exceptions"],
+            "cflags_cc!": ["-fno-rtti"],
+            "cflags": ["/std:c++17"]
         }
     ]
 }
