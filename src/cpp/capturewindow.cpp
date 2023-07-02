@@ -38,7 +38,7 @@ Napi::Value CaptureWindow(const Napi::CallbackInfo &info)
     }
 
     // Init COM
-    winrt::init_apartment(winrt::apartment_type::multi_threaded);
+    winrt::init_apartment(winrt::apartment_type::single_threaded);
 
     // Create Direct 3D Device
     winrt::com_ptr<ID3D11Device> d3dDevice;
