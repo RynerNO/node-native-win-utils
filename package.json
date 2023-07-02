@@ -23,7 +23,9 @@
     "mousedrag",
     "opencv",
     "template matching",
-    "image"
+    "image",
+    "blur",
+    "grayscale"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
