@@ -32,7 +32,7 @@ Napi::Value Imread(const Napi::CallbackInfo &info)
 
     // Create a new Uint8Array with the correct size
 
-    size_t totalBytes = image.cols * image.rows * image.elemSize();
+    size_t totalBytes = image.total() * image.elemSize();
     Napi::ArrayBuffer arrayBuffer = Napi::ArrayBuffer::New(env, totalBytes);
     Napi::Uint8Array uint8Array = Napi::Uint8Array::New(env, totalBytes, arrayBuffer, 0);
 
@@ -354,7 +354,7 @@ Napi::Value GetRegion(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
 
-    if (info.Length() < 2 || !info[0].IsObject() && !info[1].IsObject())
+    if (info.Length() < 2 || !info[0].IsObject() || !info[1].IsObject())
     {
         Napi::TypeError::New(env, "Invalid arguments. Expected: (object)").ThrowAsJavaScriptException();
         return env.Null();
@@ -391,7 +391,8 @@ Napi::Value GetRegion(const Napi::CallbackInfo &info)
     cv::Mat image(imageHeight, imageWidth, CV_8UC3, imageObj.Get("data").As<Napi::TypedArray>().ArrayBuffer().Data());
 
     cv::Rect region(x, y, width, height);
-    cv::Mat regionImage = image(region);
+    cv::Mat regionImage = image(region).clone();
+
     size_t totalBytes = regionImage.total() * regionImage.elemSize();
     Napi::ArrayBuffer arrayBuffer = Napi::ArrayBuffer::New(env, totalBytes);
     Napi::Uint8Array uint8Array = Napi::Uint8Array::New(env, totalBytes, arrayBuffer, 0);
