@@ -16,6 +16,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
     exports.Set("mouseClick", Napi::Function::New(env, ClickMouse));
     exports.Set("mouseDrag", Napi::Function::New(env, DragMouse));
     exports.Set("typeString", Napi::Function::New(env, TypeString));
+    exports.Set("pressKey", Napi::Function::New(env, PressKey));
     exports.Set("imread", Napi::Function::New(env, Imread));
     exports.Set("imwrite", Napi::Function::New(env, Imwrite));
     exports.Set("matchTemplate", Napi::Function::New(env, MatchTemplate));

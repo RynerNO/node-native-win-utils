@@ -171,7 +171,7 @@ Napi::Value TypeString(const Napi::CallbackInfo &info)
   if (info.Length() < 1 || !info[0].IsString())
   {
     Napi::TypeError::New(env, "You should provide a string to type").ThrowAsJavaScriptException();
-    return env.Null();
+    return Napi::Boolean::New(env, false);
   }
   int delay = 15;
   std::string text = info[0].As<Napi::String>();
@@ -200,6 +200,43 @@ Napi::Value TypeString(const Napi::CallbackInfo &info)
     // Sleep for 15 milliseconds between each character input
     Sleep(delay);
   }
+
+  return Napi::Boolean::New(env, true);
+}
+
+// Function to simulate key press and release using provided key code
+Napi::Value PressKey(const Napi::CallbackInfo &info)
+{
+  Napi::Env env = info.Env();
+
+  if (info.Length() < 1 || !info[0].IsNumber())
+  {
+    Napi::TypeError::New(env, "You should provide a key code to type").ThrowAsJavaScriptException();
+    return Napi::Boolean::New(env, false);;
+  }
+
+  int keyCode = info[0].As<Napi::Number>().Int32Value();
+  int delay = 15;
+
+  if (info.Length() > 1 && info[1].IsNumber())
+  {
+    delay = info[1].As<Napi::Number>().Int32Value();
+  }
+
+  // Simulate key press
+  INPUT keyboardInput = {0};
+  keyboardInput.type = INPUT_KEYBOARD;
+  keyboardInput.ki.wVk = keyCode;
+  keyboardInput.ki.dwFlags = 0;
+  keyboardInput.ki.time = 0;
+
+  SendInput(1, &keyboardInput, sizeof(keyboardInput));
+
+  Sleep(delay);
+
+  // Simulate key release
+  keyboardInput.ki.dwFlags = KEYEVENTF_KEYUP;
+  SendInput(1, &keyboardInput, sizeof(keyboardInput));
 
   return Napi::Boolean::New(env, true);
 }

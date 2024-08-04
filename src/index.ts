@@ -67,6 +67,11 @@ export type MouseClick = (button?: "left" | "middle" | "right") => boolean;
 export type TypeString = (stringToType: string, delay?: number) => boolean;
 
 /**
+ * Function type for simulating key press and release.
+ */
+export type PressKey = (keyCode: number) => boolean;
+
+/**
  * Function type for simulating a mouse drag operation.
  */
 export type MouseDrag = (
@@ -125,6 +130,7 @@ const {
   mouseClick,
   mouseDrag,
   typeString,
+  pressKey,
   imread,
   imwrite,
   matchTemplate,
@@ -141,6 +147,7 @@ const {
   mouseClick: MouseClick;
   mouseDrag: MouseDrag;
   typeString: TypeString;
+  pressKey: PressKey;
   imread: Imread;
   imwrite: Imwrite;
   matchTemplate: MatchTemplate;
@@ -302,7 +309,17 @@ export class OpenCV {
     fs.writeFileSync(path, buffer);
   }
 }
-
+function keyPress(keyCode: number, repeat?: number) {
+  return new Promise((resolve, reject) => {
+        if(!repeat) {
+          return resolve(pressKey(keyCode));
+        }
+        for(let i = 0; i < repeat; i++) {
+          pressKey(keyCode);
+        }
+        return resolve(true);
+  })
+}
 export {
   keyDownHandler,
   keyUpHandler,
@@ -313,4 +330,6 @@ export {
   mouseClick,
   mouseDrag,
   typeString,
+  keyPress
+  
 };
