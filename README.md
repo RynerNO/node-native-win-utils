@@ -474,29 +474,19 @@ Writes the current image to a file specified by the `path`.
 
   
 
-| Function | Parameters | Return Type |
+| Function        | Parameters                                                                                   | Return Type |
+|-----------------|----------------------------------------------------------------------------------------------|-------------|
+| keyDownHandler  | `callback: (keyCode: number) => void`                                                         | `void`      |
+| keyUpHandler    | `callback: (keyCode: number) => void`                                                         | `void`      |
+| getWindowData   | `windowName: string`                                                                         | `WindowData`|
+| captureWindow   | `windowName: string, outputPath: string`                                                      | `void`      |
+| mouseMove       | `posX: number, posY: number`                                                                  | `boolean`   |
+| mouseClick      | `button?: "left" \| "middle" \| "right"`                                                      | `boolean`   |
+| mouseDrag       | `startX: number, startY: number, endX: number, endY: number, speed?: number`                | `boolean`   |
+| typeString      | `stringToType: string, delay?: number`                                                        | `boolean`   |
+| captureWindowN  | `windowName: string`                                                                         | `Buffer`    |
+| keyPress        | `keyCode: number, repeat?: number`                                                           | `boolean`   |
 
-| -------------- | ---------------------------------------------------------------------------- | ------------ |
-
-| keyDownHandler | `callback: (keyCode: number) => void` | `void` |
-
-| keyUpHandler | `callback: (keyCode: number) => void` | `void` |
-
-| getWindowData | `windowName: string` | `WindowData` |
-
-| captureWindow | `windowName: string, outputPath: string` | `void` |
-
-| mouseMove | `posX: number, posY: number` | `boolean` |
-
-| mouseClick | `button?: "left" \| "middle" \| "right"` | `boolean` |
-
-| mouseDrag | `startX: number, startY: number, endX: number, endY: number, speed?: number` | `boolean` |
-
-| typeString | `stringToType: string, delay?: number` | `boolean` |
-
-| captureWindowN | `windowName: string` | `Buffer` |
-
-| keyPress | `keyCode: number, repeat?: number` | `boolean` |
 
   
 
