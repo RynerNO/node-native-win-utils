@@ -30,7 +30,7 @@ This package is a native addon for Node.js that allows you to perform various ut
 
 # VESRION 1.3.3
 
-Added a new function to simulate button press and release (keyPress), introduced an enumeration KeyCodesHelper with the most common key codes, and fixed a bug where the typeString function was not working with languages other than English.
+Added a new function to simulate button press and release (`keyPress`), introduced an enumeration `KeyCodesHelper` with the most common key codes, and fixed a bug where the `typeString` function was not working with languages other than English.
 
   
 
