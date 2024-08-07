@@ -164,44 +164,41 @@ Napi::Value SetKeyUpCallback(const Napi::CallbackInfo &info)
   return env.Undefined();
 }
 
-Napi::Value TypeString(const Napi::CallbackInfo &info)
-{
-  Napi::Env env = info.Env();
+Napi::Value TypeString(const Napi::CallbackInfo &info) {
+    Napi::Env env = info.Env();
 
-  if (info.Length() < 1 || !info[0].IsString())
-  {
-    Napi::TypeError::New(env, "You should provide a string to type").ThrowAsJavaScriptException();
-    return Napi::Boolean::New(env, false);
-  }
-  int delay = 15;
-  std::string text = info[0].As<Napi::String>();
-  if (info.Length() > 1 && info[1].IsNumber())
-  {
-    delay = info[1].As<Napi::Number>();
-  }
-  // Convert the string to wide string
-  std::wstring wideText(text.begin(), text.end());
+    if (info.Length() < 1 || !info[0].IsString()) {
+        Napi::TypeError::New(env, "You should provide a string to type").ThrowAsJavaScriptException();
+        return Napi::Boolean::New(env, false);
+    }
 
-  // Simulate typing by sending keyboard events
-  for (const wchar_t &character : wideText)
-  {
-    INPUT keyboardInput = {0};
-    keyboardInput.type = INPUT_KEYBOARD;
-    keyboardInput.ki.wVk = 0;
-    keyboardInput.ki.wScan = character;
-    keyboardInput.ki.dwFlags = KEYEVENTF_UNICODE;
-    keyboardInput.ki.time = 0; // System will provide the timestamp
+    int delay = 15;
+    std::u16string text = info[0].As<Napi::String>().Utf16Value();
+    if (info.Length() > 1 && info[1].IsNumber()) {
+        delay = info[1].As<Napi::Number>().Int32Value();
+    }
 
-    SendInput(1, &keyboardInput, sizeof(keyboardInput));
+    for (const auto &character : text) {
+        INPUT keyboardInput = {0};
+        keyboardInput.type = INPUT_KEYBOARD;
+        keyboardInput.ki.wVk = 0;
+        keyboardInput.ki.wScan = character;
+        keyboardInput.ki.dwFlags = KEYEVENTF_UNICODE;
+        keyboardInput.ki.time = 0;
+        keyboardInput.ki.dwExtraInfo = 0;
 
-    keyboardInput.ki.dwFlags = KEYEVENTF_UNICODE | KEYEVENTF_KEYUP;
-    SendInput(1, &keyboardInput, sizeof(keyboardInput));
+        // Press the key
+        SendInput(1, &keyboardInput, sizeof(INPUT));
 
-    // Sleep for 15 milliseconds between each character input
-    Sleep(delay);
-  }
+        // Release the key
+        keyboardInput.ki.dwFlags = KEYEVENTF_UNICODE | KEYEVENTF_KEYUP;
+        SendInput(1, &keyboardInput, sizeof(INPUT));
 
-  return Napi::Boolean::New(env, true);
+        // Sleep for the specified delay between keystrokes
+        Sleep(delay);
+    }
+
+    return Napi::Boolean::New(env, true);
 }
 
 // Function to simulate key press and release using provided key code
