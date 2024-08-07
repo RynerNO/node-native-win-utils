@@ -1,10 +1,21 @@
 [![License][license-src]][license-href]
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/ryner)
+
+USDT TRC20 - TYAJ3K3MZraJhWimxxeCKcJ2SYABkVsrzi
+USDT TON   - UQDokuYZXr4OHvfslDqUoFYcp1_F8tcjQPk_TvqSSDk7SIa7
+BTC        - 1A3mNKFdWKXZ7Bcnez8LbWbYHgck1g4GeV
+NOT        - UQDokuYZXr4OHvfslDqUoFYcp1_F8tcjQPk_TvqSSDk7SIa7
+
+Will be very thankful for any support
 
 # Node Native Win Utils
 
 I did it for myself because I didn't feel like dealing with libraries like 'node-ffi' to implement this functionality. Maybe someone will find it useful. It's WINDOWS OS ONLY
 
 This package is a native addon for Node.js that allows you to perform various utility operations on Windows systems. It includes key event listeners, window data retrieval, window screenshot capture functionality, mouse movement, mouse click, mouse drag, and typing functionality, also I included precompiled libs of OpenCV(core, imgcodecs, imgproc)
+
+# VESRION 1.3.3
+Added a new function to simulate button press and release (keyPress), introduced an enumeration KeyCodesHelper with the most common key codes, and fixed a bug where the typeString function was not working with languages other than English.
 
 # Installation
 
@@ -53,6 +64,25 @@ keyUpHandler((keyCode) => {
 });
 
 // Key up: 8
+```
+## Key Press
+
+The keyPress function allows you to simulate a key press event. Provide the keyCode as a parameter and optionally the number of times to press the key:
+
+```javascript
+keyPress(65); // Press 'A' key once
+
+keyPress(65, 3); // Press 'A' key three times
+```
+## Key Code Helper
+
+The KeyCodeHelper enum provides a set of key codes that can be used with key event functions:
+
+```javascript
+
+import { KeyCodeHelper } from "node-native-win-utils";
+
+console.log(KeyCodeHelper.A); // Outputs the key code for 'A'
 ```
 
 ## Window Data
@@ -218,6 +248,7 @@ Writes the current image to a file specified by the `path`.
 | mouseDrag      | `startX: number, startY: number, endX: number, endY: number, speed?: number` | `boolean`    |
 | typeString     | `stringToType: string, delay?: number`                                       | `boolean`    |
 | captureWindowN | `windowName: string`                                                         | `Buffer`     |
+| keyPress       | `keyCode: number, repeat?: number`                                           | `boolean`     |
 
 ## Examples
 
@@ -333,16 +364,21 @@ listener.on("keyDown", (data) => {
   console.log("Key down:", data.keyCode, data.keyName);
 });
 
-// Key down: 8 Backspace
+// Key down: keyCode keyName
 
 listener.on("keyUp", (data) => {
   console.log("Key up:", data.keyCode, data.keyName);
 });
 
-// Key up: 8 Backspace
-```
+// Key up: keyCode keyName
 
-P.S.: As my knowledge of C++ is just brief, most of the C++ code is written with help of GPT-3.5 and GPT-4
+
+```
+# TODO
+
+- Write proper tests
+- Add more useful functions
+- Fix issue with Windows scale for font,text,apps
 
 [OpenCV License](https://github.com/opencv/opencv/blob/master/LICENSE)
 
