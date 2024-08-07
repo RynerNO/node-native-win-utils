@@ -4,7 +4,7 @@ import fs from "fs";
 
 const bindings = require("node-gyp-build")(path.resolve(__dirname, ".."));
 
-import keyCodes from "./keyCodes";
+import {keyCodes, KeyCodeHelper} from "./keyCodes";
 
 /**
  * Represents the data of a window.
@@ -156,6 +156,8 @@ const {
   drawRectangle: DrawRectangle;
   getRegion: GetRegion;
 } = bindings;
+
+const rawPressKey = pressKey;
 
 /**
  * Captures a window and saves it to a file.
@@ -309,13 +311,16 @@ export class OpenCV {
     fs.writeFileSync(path, buffer);
   }
 }
-function keyPress(keyCode: number, repeat?: number) {
+function keyPress(keyCode: number, repeat?: number): Promise<boolean> {
   return new Promise((resolve, reject) => {
         if(!repeat) {
-          return resolve(pressKey(keyCode));
+          let result = rawPressKey(keyCode)
+          if(!result) reject('Something went wrong');
+          return resolve(true);
         }
         for(let i = 0; i < repeat; i++) {
-          pressKey(keyCode);
+          let result = rawPressKey(keyCode);
+          if(!result) reject('Something went wrong');
         }
         return resolve(true);
   })
@@ -330,6 +335,7 @@ export {
   mouseClick,
   mouseDrag,
   typeString,
-  keyPress
-  
+  keyPress,
+  rawPressKey,
+  KeyCodeHelper
 };
